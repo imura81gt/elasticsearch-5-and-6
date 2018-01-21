@@ -2,10 +2,10 @@
 # https://www.elastic.co/guide/en/kibana/5.5/_configuring_kibana_on_docker.html
 version: '2.2'
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
+  elasticsearch553:
+    build: elasticsearch/5.5.3/
     environment:
-      - cluster.name=docker-cluster
+      - cluster.name=es553-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -13,23 +13,51 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - es55data1:/usr/share/elasticsearch/data
+      - es553data1:/usr/share/elasticsearch/data
     ports:
-      - 59200:9200
+      - 19200:9200
     networks:
-      - esnet
-  kibana:
+      - es553net
+  kibana553:
     image: docker.elastic.co/kibana/kibana:5.5.3
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch553:9200
     ports:
-      - 55601:5601
+      - 15601:5601
     networks:
-      - esnet
+      - es553net
+
+  elasticsearch612:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.1.2
+    environment:
+      - cluster.name=es612-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es612data1:/usr/share/elasticsearch/data
+    ports:
+      - 29200:9200
+    networks:
+      - es612net
+  kibana612:
+    build: kibana/6.1.2/
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch612:9200
+    ports:
+      - 25601:5601
+    networks:
+      - es612net
 
 volumes:
-  es55data1:
+  es553data1:
     driver: local
-  es55data2:
+  es612data1:
     driver: local
 
 networks:
-  esnet:
+  es553net:
+  es612net:
